@@ -37,7 +37,29 @@ When text is selected:
 
 ## Usage with Claude Code
 
-Run Claude Code from your vault root. Add the following to your vault's `CLAUDE.md` so Claude knows how to interpret the pointer file:
+Run Claude Code from your vault root. Two pieces of configuration bring the pointer file into Claude's awareness: instructions in `CLAUDE.md` and an optional status bar.
+
+Both snippets are available as copy-pasteable text in the plugin settings (Settings → Active Note → Claude Code Integration).
+
+### 1. CLAUDE.md Instructions
+
+Add the following to your vault's `CLAUDE.md` so Claude knows how to resolve `@.` references:
+
+```markdown
+## Active Note Context
+
+The Obsidian plugin "Active Note" writes the currently open note and any selected text to `.obsidian/active-note.json`.
+
+When I reference a file with `@.` — read `.obsidian/active-note.json` to resolve which note I mean.
+
+Format (JSON):
+- `path` — vault-relative path to the active note (always present)
+- `selection` — only present when text is selected:
+  - `text` — the selected text
+  - `startLine` / `endLine` — 1-indexed line range
+
+When a selection is present and I refer to "this", "this part", or "the highlighted text", use the selection text and line numbers as context.
+```
 
 Then you can talk to Claude Code naturally:
 
@@ -47,6 +69,45 @@ Then you can talk to Claude Code naturally:
 - **"Add a YAML frontmatter to @."** — Claude modifies the active note without you typing the path.
 
 The `@.` shorthand eliminates the need to copy-paste file paths between Obsidian and the terminal.
+
+### 2. Status Bar (Optional)
+
+You can display the active note and selection state directly in Claude Code's status bar by adding a `statusLine` command to `~/.claude/settings.json`:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "input=$(cat); dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); cd \"$dir\" 2>/dev/null && branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null); note=''; anf=\"$dir/.obsidian/active-note.json\"; if [ -f \"$anf\" ]; then p=$(jq -r '.path // empty' \"$anf\" 2>/dev/null); if [ -n \"$p\" ]; then fn=\"${p##*/}\"; fn=\"${fn%.md}\"; if [ ${#fn} -gt 40 ]; then fn=\"${fn:0:37}...\"; fi; sel=$(jq -r '.selection.text // empty' \"$anf\" 2>/dev/null); if [ -n \"$sel\" ]; then note=\"@. $fn | ●\"; else note=\"@. $fn\"; fi; fi; fi; out=$(echo \"$dir\" | sed \"s|^$HOME|~|\"); if [ -n \"$branch\" ]; then out=\"$out (git: $branch)\"; fi; if [ -n \"$note\" ]; then out=\"$out | $note\"; fi; echo -e \"$out\""
+  }
+}
+```
+
+> **Note:** If the `$HOME` substitution does not work in your shell environment, replace `$HOME` in the `sed` command with your literal home directory path (e.g., `s|^/home/youruser|~|`).
+
+This displays the active note filename (without `.md`) and a `●` indicator when text is selected. Filenames longer than 40 characters are truncated with `...`.
+
+**Examples:**
+
+No active note (or not in a vault):
+```
+~/Documents/obsidian/my-vault (git: main)
+```
+
+Active note, no selection:
+```
+~/Documents/obsidian/my-vault (git: main) | @. Lifecycle Investment Advice
+```
+
+Active note with text selected:
+```
+~/Documents/obsidian/my-vault (git: main) | @. Lifecycle Investment Advice | ●
+```
+
+Long filename, truncated:
+```
+~/Documents/obsidian/my-vault (git: main) | @. chapter2-portfolio-analysis-supplem...
+```
 
 ## Other Use Cases
 
@@ -58,7 +119,10 @@ Any external tool can use the pointer file as a bridge to Obsidian's UI state:
 
 ## Settings
 
-The pointer file path is configurable in Settings → Active Note.
+Configurable in Settings → Active Note:
+
+- **Pointer file path** — where the JSON state is written (default: `.obsidian/active-note.json`)
+- **Debounce interval** — delay in ms before writing selection changes (default: 300)
 
 ## Installation
 

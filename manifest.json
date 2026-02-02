@@ -3,7 +3,8 @@
 	"name": "Active Note",
 	"version": "1.0.0",
 	"minAppVersion": "1.0.0",
-	"description": "Writes the path of the currently active note to .obsidian/active-note.txt for external tool integration.",
-	"author": "David",
+	"description": "Writes the active note path and selection to .obsidian/active-note.json for external tool integration.",
+	"author": "David Szp",
+	"authorUrl": "https://github.com/davidszp",
 	"isDesktopOnly": true
 }
