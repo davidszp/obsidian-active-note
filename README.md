@@ -1,5 +1,7 @@
 # Active Note
 
+![Active Note plugin screenshot](img/example.png)
+
 An Obsidian plugin that externalizes the "currently active note" state for use by external tools.
 
 ## The Problem
