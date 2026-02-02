@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-active-note",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Obsidian plugin that writes the active note path to a pointer file",
 	"main": "main.js",
 	"scripts": {

@@ -1,7 +1,7 @@
 {
 	"id": "active-note",
 	"name": "Active Note",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"minAppVersion": "1.0.0",
 	"description": "Writes the active note path and selection to a JSON pointer file for external tool integration (e.g. Claude Code, Gemini CLI etc.).",
 	"author": "David Szp",
