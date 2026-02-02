@@ -1,7 +1,7 @@
 {
 	"id": "active-note",
 	"name": "Active Note",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"minAppVersion": "1.0.0",
 	"description": "Writes the active note path and selection to .obsidian/active-note.json for external tool integration.",
 	"author": "David Szp",
