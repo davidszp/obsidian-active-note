@@ -128,7 +128,7 @@ class ActiveNoteSettingTab extends PluginSettingTab {
 					})
 			);
 
-		new Setting(containerEl).setName("Claude Code integration").setHeading();
+		new Setting(containerEl).setName("External tool integration").setHeading();
 
 		const claudeMdSnippet = `## Active Note Context\n\nThe Obsidian plugin "Active Note" writes the currently open note and any selected text to \`.obsidian/active-note.json\`.\n\nWhen I reference a file with \`@.\` — read \`.obsidian/active-note.json\` to resolve which note I mean.\n\nFormat (JSON):\n- \`path\` — vault-relative path to the active note (always present)\n- \`selection\` — only present when text is selected:\n  - \`text\` — the selected text\n  - \`startLine\` / \`endLine\` — 1-indexed line range\n\nWhen a selection is present and I refer to "this", "this part", or "the highlighted text", use the selection text and line numbers as context.`;
 
