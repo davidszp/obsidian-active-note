@@ -97,7 +97,7 @@ class ActiveNoteSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		new Setting(containerEl).setName("General").setHeading();
+		new Setting(containerEl).setName("Setup").setHeading();
 
 		new Setting(containerEl)
 			.setName("Pointer file path")
