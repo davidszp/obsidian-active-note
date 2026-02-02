@@ -1,0 +1,9 @@
+{
+	"id": "active-note",
+	"name": "Active Note",
+	"version": "1.0.0",
+	"minAppVersion": "1.0.0",
+	"description": "Writes the path of the currently active note to .obsidian/active-note.txt for external tool integration.",
+	"author": "David",
+	"isDesktopOnly": true
+}
