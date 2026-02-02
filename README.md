@@ -126,8 +126,20 @@ Configurable in Settings → Active Note:
 
 ## Installation
 
-1. Copy `main.js` and `manifest.json` to your vault's `.obsidian/plugins/active-note/` folder
-2. Enable "Active Note" in Settings → Community plugins
+### Using BRAT (recommended)
+
+1. Install the [BRAT plugin](https://github.com/TfTHacker/obsidian42-brat) if you haven't already
+2. Open Settings → BRAT → Add Beta Plugin
+3. Enter `davidszp/obsidian-active-note`
+4. Enable "Active Note" in Settings → Community plugins
+
+BRAT will handle updates automatically.
+
+### Manual
+
+1. Download `main.js` and `manifest.json` from the [latest release](https://github.com/davidszp/obsidian-active-note/releases)
+2. Copy them to your vault's `.obsidian/plugins/active-note/` folder
+3. Enable "Active Note" in Settings → Community plugins
 
 ## Performance
 
