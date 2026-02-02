@@ -1,0 +1,34 @@
+.active-note-snippet-block {
+	margin-bottom: 1.5em;
+}
+
+.active-note-snippet-box {
+	position: relative;
+	margin-top: 8px;
+}
+
+.active-note-snippet-box textarea {
+	width: 100%;
+	font-family: monospace;
+	font-size: 12px;
+	resize: vertical;
+	padding: 10px;
+	padding-top: 36px;
+}
+
+.active-note-snippet-box textarea.active-note-snippet-tall {
+	min-height: 220px;
+}
+
+.active-note-snippet-box textarea.active-note-snippet-short {
+	min-height: 50px;
+}
+
+.active-note-snippet-copy-btn {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	font-size: 11px;
+	padding: 2px 8px;
+	cursor: pointer;
+}

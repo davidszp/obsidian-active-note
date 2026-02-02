@@ -1,4 +1,4 @@
-import { App, MarkdownView, Notice, Plugin, PluginSettingTab, Setting } from "obsidian";
+import { App, FileSystemAdapter, MarkdownView, Notice, Plugin, PluginSettingTab, Setting } from "obsidian";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -7,14 +7,22 @@ interface ActiveNoteSettings {
 	debounceMs: number;
 }
 
+function defaultPointerPath(configDir: string): string {
+	return `${configDir}/active-note.json`;
+}
+
 const DEFAULT_SETTINGS: ActiveNoteSettings = {
-	pointerFilePath: ".obsidian/active-note.json",
+	pointerFilePath: "",
 	debounceMs: 300,
 };
 
 export default class ActiveNotePlugin extends Plugin {
 	settings: ActiveNoteSettings;
 	private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+	get pointerFilePath(): string {
+		return this.settings.pointerFilePath || defaultPointerPath(this.app.vault.configDir);
+	}
 
 	async onload() {
 		await this.loadSettings();
@@ -57,8 +65,9 @@ export default class ActiveNotePlugin extends Plugin {
 			};
 		}
 
-		const vaultPath = (this.app.vault.adapter as any).getBasePath();
-		const pointerPath = path.join(vaultPath, this.settings.pointerFilePath);
+		const adapter = this.app.vault.adapter as FileSystemAdapter;
+		const vaultPath = adapter.getBasePath();
+		const pointerPath = path.join(vaultPath, this.pointerFilePath);
 
 		try {
 			fs.writeFileSync(pointerPath, JSON.stringify(data), "utf8");
@@ -88,14 +97,14 @@ class ActiveNoteSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl("h3", { text: "General" });
+		new Setting(containerEl).setName("General").setHeading();
 
 		new Setting(containerEl)
 			.setName("Pointer file path")
 			.setDesc("Relative path from vault root where the active note state is written")
 			.addText((text) =>
 				text
-					.setPlaceholder(".obsidian/active-note.json")
+					.setPlaceholder(defaultPointerPath(this.app.vault.configDir))
 					.setValue(this.plugin.settings.pointerFilePath)
 					.onChange(async (value) => {
 						this.plugin.settings.pointerFilePath = value;
@@ -119,7 +128,7 @@ class ActiveNoteSettingTab extends PluginSettingTab {
 					})
 			);
 
-		containerEl.createEl("h3", { text: "Claude Code Integration" });
+		new Setting(containerEl).setName("Claude Code integration").setHeading();
 
 		const claudeMdSnippet = `## Active Note Context\n\nThe Obsidian plugin "Active Note" writes the currently open note and any selected text to \`.obsidian/active-note.json\`.\n\nWhen I reference a file with \`@.\` — read \`.obsidian/active-note.json\` to resolve which note I mean.\n\nFormat (JSON):\n- \`path\` — vault-relative path to the active note (always present)\n- \`selection\` — only present when text is selected:\n  - \`text\` — the selected text\n  - \`startLine\` / \`endLine\` — 1-indexed line range\n\nWhen a selection is present and I refer to "this", "this part", or "the highlighted text", use the selection text and line numbers as context.`;
 
@@ -146,34 +155,23 @@ class ActiveNoteSettingTab extends PluginSettingTab {
 		opts: { name: string; desc: string; text: string }
 	) {
 		const wrapper = containerEl.createDiv({ cls: "active-note-snippet-block" });
-		wrapper.style.marginBottom = "1.5em";
 
 		wrapper.createEl("div", { text: opts.name, cls: "setting-item-name" });
 		wrapper.createEl("div", { text: opts.desc, cls: "setting-item-description" });
 
-		const boxWrapper = wrapper.createDiv();
-		boxWrapper.style.position = "relative";
-		boxWrapper.style.marginTop = "8px";
+		const boxWrapper = wrapper.createDiv({ cls: "active-note-snippet-box" });
 
-		const textarea = boxWrapper.createEl("textarea");
+		const textarea = boxWrapper.createEl("textarea", {
+			cls: opts.text.includes("\n") ? "active-note-snippet-tall" : "active-note-snippet-short",
+		});
 		textarea.value = opts.text;
-		textarea.style.width = "100%";
-		textarea.style.minHeight = opts.text.includes("\n") ? "220px" : "50px";
-		textarea.style.fontFamily = "monospace";
-		textarea.style.fontSize = "12px";
-		textarea.style.resize = "vertical";
-		textarea.style.padding = "10px";
-		textarea.style.paddingTop = "36px";
 
-		const btn = boxWrapper.createEl("button", { text: "Copy to clipboard" });
-		btn.style.position = "absolute";
-		btn.style.top = "6px";
-		btn.style.right = "6px";
-		btn.style.fontSize = "11px";
-		btn.style.padding = "2px 8px";
-		btn.style.cursor = "pointer";
+		const btn = boxWrapper.createEl("button", {
+			text: "Copy to clipboard",
+			cls: "active-note-snippet-copy-btn",
+		});
 		btn.addEventListener("click", () => {
-			navigator.clipboard.writeText(textarea.value);
+			void navigator.clipboard.writeText(textarea.value);
 			new Notice("Copied to clipboard");
 		});
 	}
